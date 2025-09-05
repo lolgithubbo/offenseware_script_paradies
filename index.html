@@ -1,254 +1,323 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lua Scripts Community</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      margin: 0; padding: 0; color: #333;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 0;
     }
-    .container { max-width: 900px; margin: auto; padding: 20px; }
-    .hidden { display: none; }
-    .box {
-      background: rgba(255,255,255,0.95);
-      border-radius: 12px;
-      padding: 20px; margin-bottom: 20px;
+    header {
+      background: #764ba2;
+      color: white;
+      padding: 16px;
+      text-align: center;
     }
-    input, textarea {
-      width: 100%; padding: 10px; margin: 6px 0;
-      border-radius: 6px; border: 1px solid #ccc;
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .form-input {
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
     }
     button {
-      padding: 8px 16px; border: none; border-radius: 8px;
-      cursor: pointer; font-weight: bold;
+      padding: 10px 16px;
+      margin-top: 8px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
     }
-    .btn-primary { background: linear-gradient(45deg, #667eea, #764ba2); color: #fff; }
-    .btn-like { background: #f8f9fa; border: 1px solid #ccc; }
-    .welcome-message { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; }
-    .owner { background: linear-gradient(45deg, #4caf50, #45a049); color: #fff; }
-    .user { background: linear-gradient(45deg, #e53935, #d32f2f); color: #fff; }
-    .script-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+    .btn-like, .btn-copy {
+      background: #e9ecef;
+      margin-right: 8px;
+    }
+    .script-card {
+      background: white;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    pre {
+      background: #2d3748;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+    #searchBar {
+      padding: 10px;
+      width: 100%;
+      margin: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
+  <header>
     <h1>🌙 Lua Scripts Community</h1>
+  </header>
 
-    <!-- Registrierung -->
-    <div id="registerBox" class="box">
-      <h2>📝 Registrieren</h2>
-      <input type="text" id="regUsername" placeholder="Benutzername" required>
-      <input type="email" id="regEmail" placeholder="E-Mail" required>
-      <input type="password" id="regPassword" placeholder="Passwort" required>
-      <button class="btn-primary" onclick="register()">Registrieren</button>
-    </div>
-
+  <div class="container">
     <!-- Login -->
-    <div id="loginBox" class="box hidden">
+    <div id="loginForm">
       <h2>🔑 Login</h2>
-      <input type="email" id="loginEmail" placeholder="E-Mail" required>
-      <input type="password" id="loginPassword" placeholder="Passwort" required>
+      <input id="loginEmail" type="email" class="form-input" placeholder="Email" required/>
+      <input id="loginUsername" type="text" class="form-input" placeholder="Username" required/>
+      <input id="loginPassword" type="password" class="form-input" placeholder="Password" required/>
       <button class="btn-primary" onclick="login()">Login</button>
     </div>
 
-    <!-- Willkommen -->
-    <div id="welcomeMessage" class="welcome-message hidden"></div>
-
-    <!-- Upload (nur Owner) -->
-    <div id="uploadSection" class="box hidden">
-      <h2>📤 Neues Lua Script hochladen</h2>
-      <form onsubmit="uploadScript(event)">
-        <input type="text" id="scriptName" placeholder="Script Name" required>
-        <textarea id="scriptDescription" placeholder="Beschreibung..." rows="3"></textarea>
-        <textarea id="scriptCode" placeholder="-- Dein Lua Script hier..." rows="8" required></textarea>
-        <button type="submit" class="btn-primary">Script hochladen</button>
-      </form>
+    <!-- Welcome -->
+    <div id="welcomeSection" class="hidden">
+      <p id="welcomeMessage"></p>
+      <button onclick="logout()">🚪 Logout</button>
     </div>
+
+    <!-- Upload (Owner only) -->
+    <div id="uploadSection" class="hidden">
+      <h2>📤 Upload new Script</h2>
+      <input id="scriptName" type="text" class="form-input" placeholder="Script Name" required/>
+      <textarea id="scriptDescription" class="form-input" placeholder="Description"></textarea>
+      <textarea id="scriptCode" class="form-input" placeholder="-- Lua code here..." required></textarea>
+      <button class="btn-primary" onclick="uploadScript()">Upload Script</button>
+    </div>
+
+    <!-- Search -->
+    <input id="searchBar" type="text" placeholder="🔍 Search scripts by name or description..." oninput="renderScripts()" />
 
     <!-- Scripts -->
     <div id="scriptsContainer"></div>
   </div>
 
-  <script>
-    // Fester Owner
-    const OWNER = {
-      username: "Nubbihax",
-      email: "kim259029@gmail.com"
-    };
+<script>
+  // ==== Global Variables ====
+  let currentUser = null;
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  let scripts = JSON.parse(localStorage.getItem("luaScripts") || "[]");
 
-    let currentUser = null;
-    let users = JSON.parse(localStorage.getItem("users") || "[]");
-    let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
+  // Owner credentials
+  const OWNER = {
+    email: "kim259029@gmail.com",
+    username: "Nubbihax",
+    password: "yourOwnerPassword" // set your password here
+  };
 
-    // Registrierung
-    function register() {
-      const username = document.getElementById("regUsername").value.trim();
-      const email = document.getElementById("regEmail").value.trim();
-      const password = document.getElementById("regPassword").value.trim();
-
-      if (!username || !email || !password) {
-        alert("Bitte alle Felder ausfüllen!");
-        return;
-      }
-
-      if (users.find(u => u.email === email)) {
-        alert("E-Mail ist bereits registriert!");
-        return;
-      }
-
-      users.push({ username, email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-      alert("Registrierung erfolgreich! Bitte logge dich ein.");
-      showLogin();
+  // ==== Save Data ====
+  function saveData() {
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("luaScripts", JSON.stringify(scripts));
+    if (currentUser) {
+      localStorage.setItem("currentUser", JSON.stringify(currentUser));
     }
+  }
 
-    // Login
-    function login() {
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-
-      const user = users.find(u => u.email === email && u.password === password);
-
-      if (!user) {
-        alert("Falsche E-Mail oder Passwort!");
-        return;
-      }
-
-      currentUser = user;
-      localStorage.setItem("currentUser", JSON.stringify(user));
+  function loadData() {
+    const savedUser = localStorage.getItem("currentUser");
+    if (savedUser) {
+      currentUser = JSON.parse(savedUser);
       showApp();
     }
+  }
 
-    // Nachladen falls schon eingeloggt
-    window.onload = () => {
-      const savedUser = localStorage.getItem("currentUser");
-      if (savedUser) {
-        currentUser = JSON.parse(savedUser);
-        showApp();
+  // ==== Login ====
+  function login() {
+    const email = document.getElementById("loginEmail").value.trim();
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value;
+
+    if (!email || !username || !password) {
+      alert("Please fill in all fields!");
+      return;
+    }
+
+    // Check if user exists
+    let user = users.find(u => u.email === email);
+
+    if (user) {
+      // Validate password
+      if (user.password !== password) {
+        alert("Wrong password!");
+        return;
       }
+    } else {
+      // New user → save
+      user = { email, username, password };
+      users.push(user);
+    }
+
+    currentUser = user;
+    saveData();
+    showApp();
+  }
+
+  function logout() {
+    currentUser = null;
+    localStorage.removeItem("currentUser");
+    document.getElementById("loginForm").classList.remove("hidden");
+    document.getElementById("welcomeSection").classList.add("hidden");
+    document.getElementById("uploadSection").classList.add("hidden");
+  }
+
+  // ==== Show App ====
+  function showApp() {
+    document.getElementById("loginForm").classList.add("hidden");
+    document.getElementById("welcomeSection").classList.remove("hidden");
+    document.getElementById("welcomeMessage").innerText =
+      `🎉 Welcome ${currentUser.username} (${currentUser.email})`;
+
+    // Only Owner can upload
+    if (
+      currentUser.email === OWNER.email &&
+      currentUser.username === OWNER.username &&
+      currentUser.password === OWNER.password
+    ) {
+      document.getElementById("uploadSection").classList.remove("hidden");
+    } else {
+      document.getElementById("uploadSection").classList.add("hidden");
+    }
+
+    renderScripts();
+  }
+
+  // ==== Upload Script (Owner only) ====
+  function uploadScript() {
+    const name = document.getElementById("scriptName").value.trim();
+    const description = document.getElementById("scriptDescription").value.trim();
+    const code = document.getElementById("scriptCode").value.trim();
+
+    if (!name || !code) {
+      alert("Please enter a name and code!");
+      return;
+    }
+
+    const newScript = {
+      id: Date.now(),
+      name,
+      description,
+      code,
+      author: currentUser.username,
+      date: new Date().toISOString().split("T")[0],
+      likes: 0,
+      likedBy: [],
+      copies: 0
     };
 
-    // UI Umschalten
-    function showApp() {
-      document.getElementById("registerBox").classList.add("hidden");
-      document.getElementById("loginBox").classList.add("hidden");
+    scripts.push(newScript);
+    saveData();
+    renderScripts();
 
-      const msg = document.getElementById("welcomeMessage");
-      msg.classList.remove("hidden");
+    document.getElementById("scriptName").value = "";
+    document.getElementById("scriptDescription").value = "";
+    document.getElementById("scriptCode").value = "";
+  }
 
-      if (currentUser.email === OWNER.email && currentUser.username === OWNER.username) {
-        msg.textContent = `🎉 Willkommen, ${currentUser.username}! Du bist als Owner eingeloggt.`;
-        msg.className = "welcome-message owner";
-        document.getElementById("uploadSection").classList.remove("hidden");
-      } else {
-        msg.textContent = `👋 Willkommen ${currentUser.username}! Du kannst Scripts lesen und liken.`;
-        msg.className = "welcome-message user";
-        document.getElementById("uploadSection").classList.add("hidden");
+  // ==== Render Scripts ====
+  function renderScripts() {
+    const container = document.getElementById("scriptsContainer");
+    container.innerHTML = "";
+
+    const search = document.getElementById("searchBar").value.toLowerCase();
+
+    // Filter + Sort: Likes > Copies
+    const filtered = scripts.filter(s =>
+      s.name.toLowerCase().includes(search) ||
+      s.description.toLowerCase().includes(search)
+    );
+
+    const sorted = [...filtered].sort((a, b) => {
+      if (b.likes === a.likes) {
+        return (b.copies || 0) - (a.copies || 0);
       }
+      return b.likes - a.likes;
+    });
 
+    if (sorted.length === 0) {
+      container.innerHTML = "<p>No scripts found.</p>";
+      return;
+    }
+
+    sorted.forEach(s => {
+      const liked = currentUser && s.likedBy.includes(currentUser.email);
+
+      const div = document.createElement("div");
+      div.className = "script-card";
+      div.innerHTML = `
+        <h3>${s.name}</h3>
+        <p><strong>Description:</strong> ${s.description}</p>
+        <pre><code>${escapeHtml(s.code)}</code></pre>
+        <p>👤 ${s.author} | 📅 ${s.date}</p>
+        <button class="btn-like" onclick="toggleLike(${s.id})">
+          ❤️ ${s.likes} ${liked ? "(Unlike)" : "(Like)"}
+        </button>
+        <button class="btn-copy" onclick="copyScript(${s.id})">
+          📋 Copy (${s.copies || 0})
+        </button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // ==== Likes ====
+  function toggleLike(id) {
+    const s = scripts.find(sc => sc.id === id);
+    if (!s) return;
+    if (!currentUser) {
+      alert("Please login first!");
+      return;
+    }
+
+    if (s.likedBy.includes(currentUser.email)) {
+      s.likedBy = s.likedBy.filter(e => e !== currentUser.email);
+      s.likes--;
+    } else {
+      s.likedBy.push(currentUser.email);
+      s.likes++;
+    }
+
+    saveData();
+    renderScripts();
+  }
+
+  // ==== Copy ====
+  function copyScript(id) {
+    const s = scripts.find(sc => sc.id === id);
+    if (!s) return;
+    navigator.clipboard.writeText(s.code).then(() => {
+      s.copies = (s.copies || 0) + 1;
+      saveData();
       renderScripts();
-    }
+    });
+  }
 
-    // Script hochladen (nur Owner)
-    function uploadScript(event) {
-      event.preventDefault();
+  // ==== Helpers ====
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, m => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    })[m]);
+  }
 
-      if (currentUser.email !== OWNER.email || currentUser.username !== OWNER.username) {
-        alert("Nur der Owner darf Scripts hochladen!");
-        return;
-      }
-
-      const name = document.getElementById("scriptName").value.trim();
-      const description = document.getElementById("scriptDescription").value.trim();
-      const code = document.getElementById("scriptCode").value.trim();
-
-      const newScript = {
-        id: Date.now(),
-        name, description, code,
-        author: currentUser.username,
-        date: new Date().toISOString().split("T")[0],
-        likes: 0,
-        likedBy: []
-      };
-
-      scripts.push(newScript);
-      saveScripts();
-      renderScripts();
-      event.target.reset();
-    }
-
-    // Liken
-    function toggleLike(scriptId) {
-      const script = scripts.find(s => s.id === scriptId);
-      if (!script) return;
-
-      if (!currentUser) {
-        alert("Bitte zuerst einloggen!");
-        return;
-      }
-
-      if (!script.likedBy) script.likedBy = [];
-
-      const alreadyLiked = script.likedBy.includes(currentUser.email);
-
-      if (alreadyLiked) {
-        script.likes--;
-        script.likedBy = script.likedBy.filter(e => e !== currentUser.email);
-      } else {
-        script.likes++;
-        script.likedBy.push(currentUser.email);
-      }
-
-      saveScripts();
-      renderScripts();
-    }
-
-    // Scripts anzeigen (sortiert nach Likes)
-    function renderScripts() {
-      const container = document.getElementById("scriptsContainer");
-      container.innerHTML = "";
-
-      // Nach Likes sortieren
-      const sorted = [...scripts].sort((a, b) => b.likes - a.likes);
-
-      sorted.forEach(s => {
-        const div = document.createElement("div");
-        div.className = "script-card";
-        const liked = s.likedBy && s.likedBy.includes(currentUser?.email);
-
-        div.innerHTML = `
-          <h3>${s.name}</h3>
-          <p><strong>Beschreibung:</strong> ${s.description}</p>
-          <pre><code>${escapeHtml(s.code)}</code></pre>
-          <p>👤 ${s.author} | 📅 ${s.date}</p>
-          <button class="btn-like" onclick="toggleLike(${s.id})">
-            ❤️ ${s.likes} ${liked ? "(Entfernen)" : "(Like)"}
-          </button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    // Escape für Code
-    function escapeHtml(text) {
-      return text.replace(/&/g, "&amp;")
-                 .replace(/</g, "&lt;")
-                 .replace(/>/g, "&gt;");
-    }
-
-    // Speichern
-    function saveScripts() {
-      localStorage.setItem("scripts", JSON.stringify(scripts));
-    }
-
-    // Login anzeigen nach Registrierung
-    function showLogin() {
-      document.getElementById("registerBox").classList.add("hidden");
-      document.getElementById("loginBox").classList.remove("hidden");
-    }
-  </script>
+  // Load at start
+  loadData();
+</script>
 </body>
 </html>
