@@ -22,9 +22,7 @@
       margin: auto;
       padding: 20px;
     }
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
     .form-input {
       padding: 10px;
       margin: 5px 0;
@@ -37,14 +35,8 @@
       border: none;
       border-radius: 5px;
     }
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-    .btn-like, .btn-copy {
-      background: #e9ecef;
-      margin-right: 8px;
-    }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-like, .btn-copy { background: #e9ecef; margin-right: 8px; }
     .script-card {
       background: white;
       padding: 16px;
@@ -59,10 +51,10 @@
       border-radius: 6px;
       overflow-x: auto;
     }
-    #searchBar {
+    #searchBar, #sortSelect {
       padding: 10px;
       width: 100%;
-      margin: 15px 0;
+      margin: 10px 0;
       border: 1px solid #ccc;
       border-radius: 6px;
     }
@@ -98,27 +90,31 @@
       <button class="btn-primary" onclick="uploadScript()">Upload Script</button>
     </div>
 
-    <!-- Search -->
-    <input id="searchBar" type="text" placeholder="🔍 Search scripts by name or description..." oninput="renderScripts()" />
+    <!-- Search & Sort -->
+    <input id="searchBar" type="text" placeholder="🔍 Search scripts..." oninput="renderScripts()" />
+    <select id="sortSelect" onchange="renderScripts()">
+      <option value="likes">Sort by Likes</option>
+      <option value="copies">Sort by Copies</option>
+      <option value="date">Sort by Date</option>
+    </select>
 
     <!-- Scripts -->
     <div id="scriptsContainer"></div>
   </div>
 
 <script>
-  // ==== Global Variables ====
+  // ==== Globals ====
   let currentUser = null;
   let users = JSON.parse(localStorage.getItem("users") || "[]");
   let scripts = JSON.parse(localStorage.getItem("luaScripts") || "[]");
 
-  // Owner credentials
+  // Owner credentials (only email + username matter)
   const OWNER = {
     email: "kim259029@gmail.com",
-    username: "Nubbihax",
-    password: "yourOwnerPassword" // set your password here
+    username: "Nubbihax"
   };
 
-  // ==== Save Data ====
+  // ==== Save / Load ====
   function saveData() {
     localStorage.setItem("users", JSON.stringify(users));
     localStorage.setItem("luaScripts", JSON.stringify(scripts));
@@ -126,7 +122,6 @@
       localStorage.setItem("currentUser", JSON.stringify(currentUser));
     }
   }
-
   function loadData() {
     const savedUser = localStorage.getItem("currentUser");
     if (savedUser) {
@@ -146,17 +141,13 @@
       return;
     }
 
-    // Check if user exists
     let user = users.find(u => u.email === email);
-
     if (user) {
-      // Validate password
       if (user.password !== password) {
         alert("Wrong password!");
         return;
       }
     } else {
-      // New user → save
       user = { email, username, password };
       users.push(user);
     }
@@ -165,7 +156,6 @@
     saveData();
     showApp();
   }
-
   function logout() {
     currentUser = null;
     localStorage.removeItem("currentUser");
@@ -181,11 +171,10 @@
     document.getElementById("welcomeMessage").innerText =
       `🎉 Welcome ${currentUser.username} (${currentUser.email})`;
 
-    // Only Owner can upload
+    // Upload only for Owner (no password check)
     if (
       currentUser.email === OWNER.email &&
-      currentUser.username === OWNER.username &&
-      currentUser.password === OWNER.password
+      currentUser.username === OWNER.username
     ) {
       document.getElementById("uploadSection").classList.remove("hidden");
     } else {
@@ -233,18 +222,25 @@
     container.innerHTML = "";
 
     const search = document.getElementById("searchBar").value.toLowerCase();
+    const sortBy = document.getElementById("sortSelect").value;
 
-    // Filter + Sort: Likes > Copies
-    const filtered = scripts.filter(s =>
+    let filtered = scripts.filter(s =>
       s.name.toLowerCase().includes(search) ||
       s.description.toLowerCase().includes(search)
     );
 
-    const sorted = [...filtered].sort((a, b) => {
-      if (b.likes === a.likes) {
-        return (b.copies || 0) - (a.copies || 0);
+    let sorted = [...filtered].sort((a, b) => {
+      if (sortBy === "likes") {
+        if (b.likes === a.likes) return (b.copies || 0) - (a.copies || 0);
+        return b.likes - a.likes;
       }
-      return b.likes - a.likes;
+      if (sortBy === "copies") {
+        if ((b.copies||0) === (a.copies||0)) return b.likes - a.likes;
+        return (b.copies||0) - (a.copies||0);
+      }
+      if (sortBy === "date") {
+        return new Date(b.date) - new Date(a.date);
+      }
     });
 
     if (sorted.length === 0) {
@@ -254,7 +250,6 @@
 
     sorted.forEach(s => {
       const liked = currentUser && s.likedBy.includes(currentUser.email);
-
       const div = document.createElement("div");
       div.className = "script-card";
       div.innerHTML = `
@@ -305,18 +300,13 @@
     });
   }
 
-  // ==== Helpers ====
+  // ==== Helper ====
   function escapeHtml(text) {
     return text.replace(/[&<>"']/g, m => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
     })[m]);
   }
 
-  // Load at start
   loadData();
 </script>
 </body>
