@@ -1,611 +1,254 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lua Scripts Community</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-        
-        .container {
-            max-width: 100%;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 16px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #764ba2;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .btn-secondary {
-            background: #f8f9fa;
-            color: #495057;
-            border: 1px solid #dee2e6;
-        }
-        
-        .btn-small {
-            padding: 8px 16px;
-            font-size: 14px;
-        }
-        
-        .main-content {
-            padding: 24px 0;
-        }
-        
-        .email-form {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .form-textarea {
-            min-height: 200px;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            resize: vertical;
-        }
-        
-        .upload-section {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .scripts-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .script-card {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .script-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-        
-        .script-info {
-            flex: 1;
-        }
-        
-        .script-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 4px;
-        }
-        
-        .script-meta {
-            font-size: 14px;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        
-        .script-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .script-description {
-            margin-bottom: 16px;
-            color: #555;
-            line-height: 1.5;
-        }
-        
-        .code-container {
-            background: #2d3748;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            position: relative;
-        }
-        
-        .code-header {
-            background: #4a5568;
-            padding: 8px 16px;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .code-lang {
-            color: #e2e8f0;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .copy-btn {
-            background: transparent;
-            border: 1px solid #718096;
-            color: #e2e8f0;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        
-        .copy-btn:hover {
-            background: #718096;
-        }
-        
-        .code-content {
-            padding: 16px;
-            overflow-x: auto;
-        }
-        
-        pre {
-            margin: 0;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .social-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 16px;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .like-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: transparent;
-            border: 2px solid #e9ecef;
-            padding: 8px 16px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-        
-        .like-btn:hover {
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-        
-        .like-btn.liked {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border-color: #667eea;
-        }
-        
-        .ranking-badge {
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            color: #333;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .welcome-message {
-            background: linear-gradient(45deg, #4caf50, #45a049);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        .top-script {
-            background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), rgba(255, 237, 78, 0.1));
-            border: 2px solid #ffd700;
-        }
-        
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 12px;
-            }
-            
-            .script-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .script-actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-            
-            .social-actions {
-                flex-direction: column;
-                gap: 12px;
-                align-items: stretch;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lua Scripts Community</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      margin: 0; padding: 0; color: #333;
+    }
+    .container { max-width: 900px; margin: auto; padding: 20px; }
+    .hidden { display: none; }
+    .box {
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      padding: 20px; margin-bottom: 20px;
+    }
+    input, textarea {
+      width: 100%; padding: 10px; margin: 6px 0;
+      border-radius: 6px; border: 1px solid #ccc;
+    }
+    button {
+      padding: 8px 16px; border: none; border-radius: 8px;
+      cursor: pointer; font-weight: bold;
+    }
+    .btn-primary { background: linear-gradient(45deg, #667eea, #764ba2); color: #fff; }
+    .btn-like { background: #f8f9fa; border: 1px solid #ccc; }
+    .welcome-message { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; }
+    .owner { background: linear-gradient(45deg, #4caf50, #45a049); color: #fff; }
+    .user { background: linear-gradient(45deg, #e53935, #d32f2f); color: #fff; }
+    .script-card { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px; }
+  </style>
 </head>
 <body>
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">🌙 Lua Scripts</div>
-                <div class="user-info" id="userInfo">
-                    <span id="userEmail" class="hidden"></span>
-                    <button class="btn btn-secondary btn-small" id="logoutBtn" onclick="logout()" style="display: none;">Logout</button>
-                </div>
-            </div>
-        </div>
-    </header>
+  <div class="container">
+    <h1>🌙 Lua Scripts Community</h1>
 
-    <main class="main-content">
-        <div class="container">
-            <!-- Email Login -->
-            <div id="emailLogin" class="email-form">
-                <h2 style="margin-bottom: 20px; color: #333;">✉️ Mit E-Mail anmelden</h2>
-                <div class="form-group">
-                    <label class="form-label">Deine E-Mail</label>
-                    <input type="email" id="userEmailInput" class="form-input" placeholder="deine@email.com" required>
-                </div>
-                <button class="btn btn-primary" onclick="loginWithEmail()">Anmelden</button>
-                <p style="margin-top: 12px; font-size: 14px; color: #666;">
-                    Einfach E-Mail eingeben - kein Passwort nötig!
-                </p>
-            </div>
+    <!-- Registrierung -->
+    <div id="registerBox" class="box">
+      <h2>📝 Registrieren</h2>
+      <input type="text" id="regUsername" placeholder="Benutzername" required>
+      <input type="email" id="regEmail" placeholder="E-Mail" required>
+      <input type="password" id="regPassword" placeholder="Passwort" required>
+      <button class="btn-primary" onclick="register()">Registrieren</button>
+    </div>
 
-            <!-- Welcome Message -->
-            <div id="welcomeMessage" class="welcome-message hidden"></div>
+    <!-- Login -->
+    <div id="loginBox" class="box hidden">
+      <h2>🔑 Login</h2>
+      <input type="email" id="loginEmail" placeholder="E-Mail" required>
+      <input type="password" id="loginPassword" placeholder="Passwort" required>
+      <button class="btn-primary" onclick="login()">Login</button>
+    </div>
 
-            <!-- Upload Section -->
-            <div id="uploadSection" class="upload-section hidden">
-                <h2 style="margin-bottom: 20px; color: #333;">📤 Neues Lua Script hochladen</h2>
-                <form onsubmit="uploadScript(event)">
-                    <div class="form-group">
-                        <label class="form-label">Script Name</label>
-                        <input type="text" id="scriptName" class="form-input" placeholder="z.B. Auto-Farm Script" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Beschreibung</label>
-                        <textarea id="scriptDescription" class="form-input" placeholder="Beschreibe dein Script..." rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Lua Code</label>
-                        <textarea id="scriptCode" class="form-input form-textarea" placeholder="-- Dein Lua Script hier..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Script hochladen</button>
-                </form>
-            </div>
+    <!-- Willkommen -->
+    <div id="welcomeMessage" class="welcome-message hidden"></div>
 
-            <!-- Scripts Grid -->
-            <div id="scriptsContainer" class="scripts-grid"></div>
-        </div>
-    </main>
+    <!-- Upload (nur Owner) -->
+    <div id="uploadSection" class="box hidden">
+      <h2>📤 Neues Lua Script hochladen</h2>
+      <form onsubmit="uploadScript(event)">
+        <input type="text" id="scriptName" placeholder="Script Name" required>
+        <textarea id="scriptDescription" placeholder="Beschreibung..." rows="3"></textarea>
+        <textarea id="scriptCode" placeholder="-- Dein Lua Script hier..." rows="8" required></textarea>
+        <button type="submit" class="btn-primary">Script hochladen</button>
+      </form>
+    </div>
 
-    <script>
-        // Globale Variablen
-        let currentUserEmail = null;
-        let scripts = [
-            {
-                id: 1,
-                name: "Auto-Farm Script",
-                description: "Automatisches Farming für Blox Fruits. Sammelt automatisch Früchte und farmt XP.",
-                code: `-- Auto-Farm Script für Blox Fruits
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
+    <!-- Scripts -->
+    <div id="scriptsContainer"></div>
+  </div>
 
-local player = Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
+  <script>
+    // Fester Owner
+    const OWNER = {
+      username: "Nubbihax",
+      email: "kim259029@gmail.com"
+    };
 
--- Farm-Funktion
-local function startAutoFarm()
-    print("Auto-Farm gestartet!")
-    
-    while true do
-        wait(1)
-        
-        -- Hier würde die Farm-Logik stehen
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            -- Beispiel: Auto-Click
-            game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1)
-            wait(0.1)
-            game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 1)
-        end
-    end
-end
+    let currentUser = null;
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+    let scripts = JSON.parse(localStorage.getItem("scripts") || "[]");
 
--- Script starten
-startAutoFarm()`,
-                author: "admin@example.com",
-                date: "2025-09-05",
-                likes: 42,
-                likedBy: ["test@test.com", "user@example.com"],
-            },
-            {
-                id: 2,
-                name: "Speed Hack",
-                description: "Erhöht die Laufgeschwindigkeit des Spielers.",
-                code: `-- Speed Hack Script
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+    // Registrierung
+    function register() {
+      const username = document.getElementById("regUsername").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
 
-local function setSpeed(speed)
-    local character = player.Character
-    if character then
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            humanoid.WalkSpeed = speed
-            print("Geschwindigkeit auf " .. speed .. " gesetzt!")
-        end
-    end
-end
+      if (!username || !email || !password) {
+        alert("Bitte alle Felder ausfüllen!");
+        return;
+      }
 
--- Geschwindigkeit auf 50 setzen (Standard: 16)
-setSpeed(50)`,
-                author: "mod@example.com",
-                date: "2025-09-04",
-                likes: 28,
-                likedBy: ["user@example.com"],
-            },
-            {
-                id: 3,
-                name: "Teleport Script",
-                description: "Teleportiert zu verschiedenen Orten auf der Map.",
-                code: `-- Teleport Script
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
+      if (users.find(u => u.email === email)) {
+        alert("E-Mail ist bereits registriert!");
+        return;
+      }
 
--- Teleport Positionen
-local locations = {
-    ["Spawn"] = Vector3.new(0, 50, 0),
-    ["Shop"] = Vector3.new(100, 50, 100),
-    ["Arena"] = Vector3.new(-200, 50, 150)
-}
+      users.push({ username, email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Registrierung erfolgreich! Bitte logge dich ein.");
+      showLogin();
+    }
 
-local function teleportTo(locationName)
-    local character = player.Character
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        local position = locations[locationName]
-        if position then
-            character.HumanoidRootPart.CFrame = CFrame.new(position)
-            print("Teleportiert zu: " .. locationName)
-        end
-    end
-end
+    // Login
+    function login() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
 
--- Zu Spawn teleportieren
-teleportTo("Spawn")`,
-                author: "coder@example.com",
-                date: "2025-09-03",
-                likes: 15,
-                likedBy: [],
-            }
-        ];
+      const user = users.find(u => u.email === email && u.password === password);
 
-        // Lade gespeicherte Daten
-        function loadData() {
-            const savedScripts = JSON.parse(localStorage.getItem('luaScripts') || '[]');
-            const savedEmail = localStorage.getItem('currentUserEmail');
-            
-            if (savedScripts.length > 0) {
-                scripts = savedScripts;
-            }
-            
-            if (savedEmail) {
-                currentUserEmail = savedEmail;
-                showApp();
-            }
-        }
+      if (!user) {
+        alert("Falsche E-Mail oder Passwort!");
+        return;
+      }
 
-        // Speichere Daten
-        function saveData() {
-            localStorage.setItem('luaScripts', JSON.stringify(scripts));
-            if (currentUserEmail) {
-                localStorage.setItem('currentUserEmail', currentUserEmail);
-            }
-        }
+      currentUser = user;
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      showApp();
+    }
 
-        // E-Mail Login
-        function loginWithEmail() {
-            const email = document.getElementById('userEmailInput').value.trim();
-            
-            if (!email || !email.includes('@')) {
-                alert('Bitte gib eine gültige E-Mail-Adresse ein!');
-                return;
-            }
+    // Nachladen falls schon eingeloggt
+    window.onload = () => {
+      const savedUser = localStorage.getItem("currentUser");
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showApp();
+      }
+    };
 
-            currentUserEmail = email;
-            showApp();
-            saveData();
-        }
+    // UI Umschalten
+    function showApp() {
+      document.getElementById("registerBox").classList.add("hidden");
+      document.getElementById("loginBox").classList.add("hidden");
 
-        // App anzeigen nach Login
-        function showApp() {
-            document.getElementById('emailLogin').classList.add('hidden');
-            document.getElementById('uploadSection').classList.remove('hidden');
-            document.getElementById('welcomeMessage').classList.remove('hidden');
-            
-            // Welcome Message
-            const welcomeMsg = document.getElementById('welcomeMessage');
-            welcomeMsg.innerHTML = `🎉 Willkommen ${currentUserEmail}! Du kannst jetzt Scripts liken und hochladen.`;
-            
-            // User Info anzeigen
-            document.getElementById('userEmail').textContent = currentUserEmail;
-            document.getElementById('userEmail').classList.remove('hidden');
-            document.getElementById('logoutBtn').style.display = 'inline-block';
+      const msg = document.getElementById("welcomeMessage");
+      msg.classList.remove("hidden");
 
-            renderScripts();
-        }
+      if (currentUser.email === OWNER.email && currentUser.username === OWNER.username) {
+        msg.textContent = `🎉 Willkommen, ${currentUser.username}! Du bist als Owner eingeloggt.`;
+        msg.className = "welcome-message owner";
+        document.getElementById("uploadSection").classList.remove("hidden");
+      } else {
+        msg.textContent = `👋 Willkommen ${currentUser.username}! Du kannst Scripts lesen und liken.`;
+        msg.className = "welcome-message user";
+        document.getElementById("uploadSection").classList.add("hidden");
+      }
 
-        // Logout
-        function logout() {
-            currentUserEmail = null;
-            localStorage.removeItem('currentUserEmail');
-            
-            document.getElementById('emailLogin').classList.remove('hidden');
-            document.getElementById('uploadSection').classList.add('hidden');
-            document.getElementById('welcomeMessage').classList.add('hidden');
-            document.getElementById('userEmail').classList.add('hidden');
-            document.getElementById('logoutBtn').style.display = 'none';
-            document.getElementById('userEmailInput').value = '';
-        }
+      renderScripts();
+    }
 
-        // Scripts sortiert nach Likes rendern
-        function renderScripts() {
-            const container = document.getElementById('scriptsContainer');
-            container.innerHTML = '';
+    // Script hochladen (nur Owner)
+    function uploadScript(event) {
+      event.preventDefault();
 
-            // Nach Likes sortieren (absteigend)
-            const sortedScripts = [...scripts].sort((a, b) => b.likes - a.likes);
+      if (currentUser.email !== OWNER.email || currentUser.username !== OWNER.username) {
+        alert("Nur der Owner darf Scripts hochladen!");
+        return;
+      }
 
-            sortedScripts.forEach((script, index) => {
-                const scriptElement = createScriptElement(script, index + 1);
-                container.appendChild(scriptElement);
-            });
-        }
+      const name = document.getElementById("scriptName").value.trim();
+      const description = document.getElementById("scriptDescription").value.trim();
+      const code = document.getElementById("scriptCode").value.trim();
 
-        // Script Element erstellen
-        function createScriptElement(script, rank) {
-            const div = document.createElement('div');
-            div.className = `script-card ${rank <= 3 ? 'top-script' : ''}`;
-            
-            const isLiked = currentUserEmail && script.likedBy.includes(currentUserEmail);
-            const rankEmoji = rank === 1 ? '🏆' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
-            
-            div.innerHTML = `
-                <div class="script-header">
-                    <div class="script-info">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <h3 class="script-title">${script.name}</h3>
-                            ${rank <= 3 ? `<span class="ranking-badge">${rankEmoji} #${rank}</span>` : ''}
-                        </div>
-                        <div class="script-meta">
-                            <span>👤 ${script.author.split('@')[0]}</span>
-                            <span>📅 ${script.date}</span>
-                            <span>❤️ ${script.likes} Likes</span>
-                        </div>
-                    </div>
-                    <div class="script-actions">
-                        <button class="btn btn-secondary btn-small" onclick="copyCode(${script.id})">📋 Kopieren</button>
-                    </div>
-                </div>
-                
-                <div class="script-description">${script.description}</div>
-                
-                <div class="code-container">
-                    <div class="code-header">
-                        <span class="code-lang">LUA</span>
-                        <button class="copy-btn" onclick="copyCode(${script.id})">📋 Copy</button>
-                    </div>
-                    <div class="code-content">
-                        <pre><code class="language-lua" id="code-${script.id}">${escapeHtml(script.code)}</code></pre>
-                    </div>
-                </div>
-                
-                <div class="social-actions">
-                    <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(${script.id})">
-          
+      const newScript = {
+        id: Date.now(),
+        name, description, code,
+        author: currentUser.username,
+        date: new Date().toISOString().split("T")[0],
+        likes: 0,
+        likedBy: []
+      };
+
+      scripts.push(newScript);
+      saveScripts();
+      renderScripts();
+      event.target.reset();
+    }
+
+    // Liken
+    function toggleLike(scriptId) {
+      const script = scripts.find(s => s.id === scriptId);
+      if (!script) return;
+
+      if (!currentUser) {
+        alert("Bitte zuerst einloggen!");
+        return;
+      }
+
+      if (!script.likedBy) script.likedBy = [];
+
+      const alreadyLiked = script.likedBy.includes(currentUser.email);
+
+      if (alreadyLiked) {
+        script.likes--;
+        script.likedBy = script.likedBy.filter(e => e !== currentUser.email);
+      } else {
+        script.likes++;
+        script.likedBy.push(currentUser.email);
+      }
+
+      saveScripts();
+      renderScripts();
+    }
+
+    // Scripts anzeigen (sortiert nach Likes)
+    function renderScripts() {
+      const container = document.getElementById("scriptsContainer");
+      container.innerHTML = "";
+
+      // Nach Likes sortieren
+      const sorted = [...scripts].sort((a, b) => b.likes - a.likes);
+
+      sorted.forEach(s => {
+        const div = document.createElement("div");
+        div.className = "script-card";
+        const liked = s.likedBy && s.likedBy.includes(currentUser?.email);
+
+        div.innerHTML = `
+          <h3>${s.name}</h3>
+          <p><strong>Beschreibung:</strong> ${s.description}</p>
+          <pre><code>${escapeHtml(s.code)}</code></pre>
+          <p>👤 ${s.author} | 📅 ${s.date}</p>
+          <button class="btn-like" onclick="toggleLike(${s.id})">
+            ❤️ ${s.likes} ${liked ? "(Entfernen)" : "(Like)"}
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Escape für Code
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;");
+    }
+
+    // Speichern
+    function saveScripts() {
+      localStorage.setItem("scripts", JSON.stringify(scripts));
+    }
+
+    // Login anzeigen nach Registrierung
+    function showLogin() {
+      document.getElementById("registerBox").classList.add("hidden");
+      document.getElementById("loginBox").classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
