@@ -55,28 +55,6 @@
             gap: 12px;
         }
         
-        .role-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .role-owner {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-            color: white;
-        }
-        
-        .role-head-admin {
-            background: linear-gradient(45deg, #4ecdc4, #44a08d);
-            color: white;
-        }
-        
-        .role-user {
-            background: #e9ecef;
-            color: #495057;
-        }
-        
         .btn {
             padding: 12px 24px;
             border: none;
@@ -114,12 +92,13 @@
             padding: 24px 0;
         }
         
-        .upload-section {
+        .email-form {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 24px;
             backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .form-group {
@@ -153,6 +132,14 @@
             resize: vertical;
         }
         
+        .upload-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+        }
+        
         .scripts-grid {
             display: flex;
             flex-direction: column;
@@ -169,7 +156,7 @@
         
         .script-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 16px;
             flex-wrap: wrap;
@@ -264,89 +251,58 @@
             border-top: 1px solid #e9ecef;
         }
         
-        .vote-buttons {
-            display: flex;
-            gap: 16px;
-        }
-        
-        .vote-btn {
+        .like-btn {
             display: flex;
             align-items: center;
             gap: 8px;
             background: transparent;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            border: 2px solid #e9ecef;
+            padding: 8px 16px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
-        }
-        
-        .vote-btn.active.like {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .vote-btn.active.dislike {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .comments-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .comment-form {
-            margin-bottom: 16px;
-        }
-        
-        .comment {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-        
-        .comment-header {
             font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
         }
         
-        .comment-text {
-            font-size: 14px;
-            line-height: 1.4;
+        .like-btn:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
         }
         
-        .login-form {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 32px 24px;
-            max-width: 400px;
-            margin: 50px auto;
-            backdrop-filter: blur(10px);
+        .like-btn.liked {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
         }
         
-        .login-title {
-            text-align: center;
-            margin-bottom: 24px;
-            font-size: 28px;
-            font-weight: bold;
+        .ranking-badge {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
             color: #333;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         
         .hidden {
             display: none;
         }
         
-        .permission-denied {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            color: #721c24;
-            margin-bottom: 24px;
+        .welcome-message {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .top-script {
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.1), rgba(255, 237, 78, 0.1));
+            border: 2px solid #ffd700;
         }
         
         @media (max-width: 480px) {
@@ -364,9 +320,10 @@
                 justify-content: flex-end;
             }
             
-            .vote-buttons {
+            .social-actions {
                 flex-direction: column;
-                gap: 8px;
+                gap: 12px;
+                align-items: stretch;
             }
         }
     </style>
@@ -377,10 +334,8 @@
             <div class="header-content">
                 <div class="logo">🌙 Lua Scripts</div>
                 <div class="user-info" id="userInfo">
-                    <div id="userDisplay" class="hidden">
-                        <span id="userRole" class="role-badge"></span>
-                        <button class="btn btn-secondary btn-small" onclick="logout()">Logout</button>
-                    </div>
+                    <span id="userEmail" class="hidden"></span>
+                    <button class="btn btn-secondary btn-small" id="logoutBtn" onclick="logout()" style="display: none;">Logout</button>
                 </div>
             </div>
         </div>
@@ -388,63 +343,50 @@
 
     <main class="main-content">
         <div class="container">
-            <!-- Login Form -->
-            <div id="loginForm" class="login-form">
-                <h2 class="login-title">Anmelden</h2>
+            <!-- Email Login -->
+            <div id="emailLogin" class="email-form">
+                <h2 style="margin-bottom: 20px; color: #333;">✉️ Mit E-Mail anmelden</h2>
                 <div class="form-group">
-                    <label class="form-label">Benutzername</label>
-                    <input type="text" id="username" class="form-input" placeholder="Dein Benutzername">
+                    <label class="form-label">Deine E-Mail</label>
+                    <input type="email" id="userEmailInput" class="form-input" placeholder="deine@email.com" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Passwort</label>
-                    <input type="password" id="password" class="form-input" placeholder="Dein Passwort">
-                </div>
-                <button class="btn btn-primary" style="width: 100%;" onclick="login()">Anmelden</button>
-                <p style="margin-top: 16px; text-align: center; font-size: 14px; color: #666;">
-                    Demo-Accounts:<br>
-                    <strong>owner</strong> / <strong>admin123</strong><br>
-                    <strong>headmin</strong> / <strong>admin123</strong><br>
-                    <strong>user</strong> / <strong>user123</strong>
+                <button class="btn btn-primary" onclick="loginWithEmail()">Anmelden</button>
+                <p style="margin-top: 12px; font-size: 14px; color: #666;">
+                    Einfach E-Mail eingeben - kein Passwort nötig!
                 </p>
             </div>
 
-            <!-- Main App Content -->
-            <div id="appContent" class="hidden">
-                <!-- Upload Section (nur für Owner und Head Admins) -->
-                <div id="uploadSection" class="upload-section hidden">
-                    <h2 style="margin-bottom: 20px; color: #333;">📤 Neues Lua Script hochladen</h2>
-                    <form onsubmit="uploadScript(event)">
-                        <div class="form-group">
-                            <label class="form-label">Script Name</label>
-                            <input type="text" id="scriptName" class="form-input" placeholder="z.B. Auto-Farm Script" required>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Beschreibung</label>
-                            <textarea id="scriptDescription" class="form-input" placeholder="Beschreibe dein Script..." rows="3"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Lua Code</label>
-                            <textarea id="scriptCode" class="form-input form-textarea" placeholder="-- Dein Lua Script hier..." required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Script hochladen</button>
-                    </form>
-                </div>
+            <!-- Welcome Message -->
+            <div id="welcomeMessage" class="welcome-message hidden"></div>
 
-                <!-- Permission Denied Message -->
-                <div id="permissionDenied" class="permission-denied hidden">
-                    <h3>⛔ Keine Berechtigung</h3>
-                    <p>Nur Owner und Head Admins können Scripts hochladen.</p>
-                </div>
-
-                <!-- Scripts Grid -->
-                <div id="scriptsContainer" class="scripts-grid"></div>
+            <!-- Upload Section -->
+            <div id="uploadSection" class="upload-section hidden">
+                <h2 style="margin-bottom: 20px; color: #333;">📤 Neues Lua Script hochladen</h2>
+                <form onsubmit="uploadScript(event)">
+                    <div class="form-group">
+                        <label class="form-label">Script Name</label>
+                        <input type="text" id="scriptName" class="form-input" placeholder="z.B. Auto-Farm Script" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Beschreibung</label>
+                        <textarea id="scriptDescription" class="form-input" placeholder="Beschreibe dein Script..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Lua Code</label>
+                        <textarea id="scriptCode" class="form-input form-textarea" placeholder="-- Dein Lua Script hier..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Script hochladen</button>
+                </form>
             </div>
+
+            <!-- Scripts Grid -->
+            <div id="scriptsContainer" class="scripts-grid"></div>
         </div>
     </main>
 
     <script>
         // Globale Variablen
-        let currentUser = null;
+        let currentUserEmail = null;
         let scripts = [
             {
                 id: 1,
@@ -478,16 +420,10 @@ end
 
 -- Script starten
 startAutoFarm()`,
-                author: "Owner",
-                authorRole: "owner",
+                author: "admin@example.com",
                 date: "2025-09-05",
-                likes: 24,
-                dislikes: 2,
-                comments: [
-                    { author: "TestUser", text: "Funktioniert super! Danke!", date: "2025-09-05" },
-                    { author: "Player123", text: "Gibt es auch eine Version für andere Spiele?", date: "2025-09-05" }
-                ],
-                userVote: null
+                likes: 42,
+                likedBy: ["test@test.com", "user@example.com"],
             },
             {
                 id: 2,
@@ -510,99 +446,147 @@ end
 
 -- Geschwindigkeit auf 50 setzen (Standard: 16)
 setSpeed(50)`,
-                author: "HeadAdmin",
-                authorRole: "head-admin",
+                author: "mod@example.com",
                 date: "2025-09-04",
-                likes: 18,
-                dislikes: 5,
-                comments: [
-                    { author: "FastRunner", text: "Zu schnell für mich, aber cool gemacht!", date: "2025-09-04" }
-                ],
-                userVote: null
+                likes: 28,
+                likedBy: ["user@example.com"],
+            },
+            {
+                id: 3,
+                name: "Teleport Script",
+                description: "Teleportiert zu verschiedenen Orten auf der Map.",
+                code: `-- Teleport Script
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Teleport Positionen
+local locations = {
+    ["Spawn"] = Vector3.new(0, 50, 0),
+    ["Shop"] = Vector3.new(100, 50, 100),
+    ["Arena"] = Vector3.new(-200, 50, 150)
+}
+
+local function teleportTo(locationName)
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local position = locations[locationName]
+        if position then
+            character.HumanoidRootPart.CFrame = CFrame.new(position)
+            print("Teleportiert zu: " .. locationName)
+        end
+    end
+end
+
+-- Zu Spawn teleportieren
+teleportTo("Spawn")`,
+                author: "coder@example.com",
+                date: "2025-09-03",
+                likes: 15,
+                likedBy: [],
             }
         ];
 
-        // Demo-User für Testing
-        const demoUsers = {
-            'owner': { username: 'owner', password: 'admin123', role: 'owner' },
-            'headmin': { username: 'headmin', password: 'admin123', role: 'head-admin' },
-            'user': { username: 'user', password: 'user123', role: 'user' }
-        };
-
-        // Login-Funktion
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            const user = demoUsers[username];
-            if (user && user.password === password) {
-                currentUser = user;
+        // Lade gespeicherte Daten
+        function loadData() {
+            const savedScripts = JSON.parse(localStorage.getItem('luaScripts') || '[]');
+            const savedEmail = localStorage.getItem('currentUserEmail');
+            
+            if (savedScripts.length > 0) {
+                scripts = savedScripts;
+            }
+            
+            if (savedEmail) {
+                currentUserEmail = savedEmail;
                 showApp();
-            } else {
-                alert('Ungültiger Benutzername oder Passwort!');
             }
         }
 
-        // Logout-Funktion
-        function logout() {
-            currentUser = null;
-            document.getElementById('loginForm').classList.remove('hidden');
-            document.getElementById('appContent').classList.add('hidden');
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+        // Speichere Daten
+        function saveData() {
+            localStorage.setItem('luaScripts', JSON.stringify(scripts));
+            if (currentUserEmail) {
+                localStorage.setItem('currentUserEmail', currentUserEmail);
+            }
+        }
+
+        // E-Mail Login
+        function loginWithEmail() {
+            const email = document.getElementById('userEmailInput').value.trim();
+            
+            if (!email || !email.includes('@')) {
+                alert('Bitte gib eine gültige E-Mail-Adresse ein!');
+                return;
+            }
+
+            currentUserEmail = email;
+            showApp();
+            saveData();
         }
 
         // App anzeigen nach Login
         function showApp() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('appContent').classList.remove('hidden');
+            document.getElementById('emailLogin').classList.add('hidden');
+            document.getElementById('uploadSection').classList.remove('hidden');
+            document.getElementById('welcomeMessage').classList.remove('hidden');
+            
+            // Welcome Message
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            welcomeMsg.innerHTML = `🎉 Willkommen ${currentUserEmail}! Du kannst jetzt Scripts liken und hochladen.`;
             
             // User Info anzeigen
-            const userDisplay = document.getElementById('userDisplay');
-            const userRole = document.getElementById('userRole');
-            
-            userDisplay.classList.remove('hidden');
-            userRole.textContent = currentUser.username;
-            userRole.className = `role-badge role-${currentUser.role}`;
-
-            // Upload Section basierend auf Role anzeigen/verstecken
-            const uploadSection = document.getElementById('uploadSection');
-            const permissionDenied = document.getElementById('permissionDenied');
-            
-            if (currentUser.role === 'owner' || currentUser.role === 'head-admin') {
-                uploadSection.classList.remove('hidden');
-                permissionDenied.classList.add('hidden');
-            } else {
-                uploadSection.classList.add('hidden');
-                permissionDenied.classList.remove('hidden');
-            }
+            document.getElementById('userEmail').textContent = currentUserEmail;
+            document.getElementById('userEmail').classList.remove('hidden');
+            document.getElementById('logoutBtn').style.display = 'inline-block';
 
             renderScripts();
         }
 
-        // Scripts rendern
+        // Logout
+        function logout() {
+            currentUserEmail = null;
+            localStorage.removeItem('currentUserEmail');
+            
+            document.getElementById('emailLogin').classList.remove('hidden');
+            document.getElementById('uploadSection').classList.add('hidden');
+            document.getElementById('welcomeMessage').classList.add('hidden');
+            document.getElementById('userEmail').classList.add('hidden');
+            document.getElementById('logoutBtn').style.display = 'none';
+            document.getElementById('userEmailInput').value = '';
+        }
+
+        // Scripts sortiert nach Likes rendern
         function renderScripts() {
             const container = document.getElementById('scriptsContainer');
             container.innerHTML = '';
 
-            scripts.forEach(script => {
-                const scriptElement = createScriptElement(script);
+            // Nach Likes sortieren (absteigend)
+            const sortedScripts = [...scripts].sort((a, b) => b.likes - a.likes);
+
+            sortedScripts.forEach((script, index) => {
+                const scriptElement = createScriptElement(script, index + 1);
                 container.appendChild(scriptElement);
             });
         }
 
         // Script Element erstellen
-        function createScriptElement(script) {
+        function createScriptElement(script, rank) {
             const div = document.createElement('div');
-            div.className = 'script-card';
+            div.className = `script-card ${rank <= 3 ? 'top-script' : ''}`;
+            
+            const isLiked = currentUserEmail && script.likedBy.includes(currentUserEmail);
+            const rankEmoji = rank === 1 ? '🏆' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+            
             div.innerHTML = `
                 <div class="script-header">
                     <div class="script-info">
-                        <h3 class="script-title">${script.name}</h3>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <h3 class="script-title">${script.name}</h3>
+                            ${rank <= 3 ? `<span class="ranking-badge">${rankEmoji} #${rank}</span>` : ''}
+                        </div>
                         <div class="script-meta">
-                            <span>👤 ${script.author}</span>
-                            <span class="role-badge role-${script.authorRole}">${getRoleDisplayName(script.authorRole)}</span>
+                            <span>👤 ${script.author.split('@')[0]}</span>
                             <span>📅 ${script.date}</span>
+                            <span>❤️ ${script.likes} Likes</span>
                         </div>
                     </div>
                     <div class="script-actions">
@@ -620,4 +604,8 @@ setSpeed(50)`,
                     <div class="code-content">
                         <pre><code class="language-lua" id="code-${script.id}">${escapeHtml(script.code)}</code></pre>
                     </div>
-             
+                </div>
+                
+                <div class="social-actions">
+                    <button class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike(${script.id})">
+          
